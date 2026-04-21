@@ -1,4 +1,3 @@
-
 BigQuery to S3 Distributed Export (Spark)
 
 Enterprise-grade Spark job to export large-scale datasets from BigQuery to Amazon S3 using distributed processing.
@@ -13,8 +12,6 @@ Designed for:
 * No local disk dependency
 * Direct distributed write to S3 (s3a)
 
-⸻
-
 Architecture Overview
 
 This job runs as a single Spark application that:
@@ -25,8 +22,6 @@ This job runs as a single Spark application that:
 4. Applies partitioning strategy
 5. Writes directly to S3 using distributed writers
 6. Emits structured logs and execution metrics
-
-⸻
 
 Execution Flow
 
@@ -48,8 +43,6 @@ flowchart TD
     
     J --> K[Log Completion]
     K --> L[Stop Spark Session]
-
-⸻
 
 Data Model (Example Table)
 
@@ -82,8 +75,6 @@ Normal execution is based on:
 
 settlement_date
 
-⸻
-
 Execution Modes
 
 Normal Mode
@@ -94,13 +85,11 @@ Filter:
 
 settlement_date BETWEEN start_date AND end_date
 
-Example:
+Example parameters:
 
 --start_date=2026-01-01
 --end_date=2026-01-31
 --recovery=false
-
-⸻
 
 Recovery Mode
 
@@ -110,22 +99,20 @@ Filter:
 
 updated_at >= recovery_date
 
-Example:
+Example parameters:
 
 --recovery=true
 --recovery_date=2026-01-15T00:00:00
 
 This allows partial reprocessing without re-exporting the full historical dataset.
 
-⸻
-
 Partitioning Strategy
 
-The job applies a logical partitioning mechanism targeting ~1,000,000 rows per output group.
+The job applies a logical partitioning mechanism targeting approximately 1,000,000 rows per output group.
 
 Steps:
 
-1. Generate row_number() ordered by transaction_timestamp
+1. Generate row_number ordered by transaction_timestamp
 2. Divide row_number by 1,000,000
 3. Create file_partition column
 4. Repartition Spark DataFrame by file_partition
@@ -140,8 +127,6 @@ s3://bucket/prefix/file_partition=1/
 Note:
 For ultra-large datasets (multi-billion rows), a hash-based partitioning strategy may be preferable to reduce shuffle pressure.
 
-⸻
-
 Storage Format
 
 Output format:
@@ -153,13 +138,11 @@ Output format:
 
 No local intermediate files are created.
 
-Data flows:
+Data flow:
 
 BigQuery → Spark Executors → S3
 
-⸻
-
-Logging & Observability
+Logging and Observability
 
 The job includes:
 
@@ -176,8 +159,6 @@ Recommended production integrations:
 * Prometheus
 * Centralized log aggregation
 
-⸻
-
 Scalability Characteristics
 
 Component	Behavior
@@ -185,13 +166,10 @@ BigQuery Read	Distributed
 Transformations	Distributed
 Write to S3	Distributed
 Memory Usage	Executor-bound
-Horizontal Scaling	Supported
+Horizontal Scale	Supported
 
 The job does not depend on local disk capacity.
-
 Scaling depends on Spark cluster configuration.
-
-⸻
 
 Deployment Options
 
@@ -201,9 +179,7 @@ This script can run on:
 * Amazon EMR
 * Kubernetes Spark Operator
 * Standalone Spark Cluster
-* Dataflow (via Spark runner if configured)
-
-⸻
+* Dataflow (if Spark runner is configured)
 
 Example Execution
 
@@ -216,9 +192,7 @@ spark-submit \
   --s3_bucket=my-bucket \
   --s3_prefix=exports/january
 
-⸻
-
-Failure & Recovery Strategy
+Failure and Recovery Strategy
 
 If the job fails:
 
@@ -231,9 +205,7 @@ Example:
 --recovery=true
 --recovery_date=2026-01-20T15:00:00
 
-This ensures idempotent and controlled reprocessing.
-
-⸻
+This ensures controlled and deterministic reprocessing.
 
 Design Principles
 
@@ -245,9 +217,7 @@ Design Principles
 * Production observability
 * Separation of configuration and logic
 
-⸻
-
-When to Improve Further
+Future Improvements
 
 For enterprise-scale evolution:
 
@@ -258,5 +228,3 @@ For enterprise-scale evolution:
 * Add dynamic partition sizing based on row count
 * Add structured JSON logs
 * Add failure alert hooks
-
-⸻
