@@ -2,7 +2,7 @@
 
 Enterprise-grade Spark job to export large-scale datasets from BigQuery to Amazon S3 using distributed processing.
 
-##Designed for:
+## Designed for:
 
 * Billion-scale tables
 * Recovery execution mode
@@ -12,7 +12,7 @@ Enterprise-grade Spark job to export large-scale datasets from BigQuery to Amazo
 * No local disk dependency
 * Direct distributed write to S3 (s3a)
 
-Architecture Overview
+## Architecture Overview
 
 This job runs as a single Spark application that:
 
@@ -23,7 +23,7 @@ This job runs as a single Spark application that:
 5. Writes directly to S3 using distributed writers
 6. Emits structured logs and execution metrics
 
-Execution Flow
+## Execution Flow
 
 flowchart TD
     A[Start Job] --> B[Parse Arguments]
@@ -44,7 +44,7 @@ flowchart TD
     J --> K[Log Completion]
     K --> L[Stop Spark Session]
 
-Data Model (Example Table)
+## Data Model (Example Table)
 
 BigQuery Table:
 
@@ -75,9 +75,9 @@ Normal execution is based on:
 
 settlement_date
 
-Execution Modes
+## Execution Modes
 
-Normal Mode
+### Normal Mode
 
 Used for standard batch exports.
 
@@ -91,7 +91,7 @@ Example parameters:
 --end_date=2026-01-31
 --recovery=false
 
-Recovery Mode
+### Recovery Mode
 
 Used when reprocessing data after failure or correction.
 
@@ -106,7 +106,7 @@ Example parameters:
 
 This allows partial reprocessing without re-exporting the full historical dataset.
 
-Partitioning Strategy
+## Partitioning Strategy
 
 The job applies a logical partitioning mechanism targeting approximately 1,000,000 rows per output group.
 
@@ -127,7 +127,7 @@ s3://bucket/prefix/file_partition=1/
 Note:
 For ultra-large datasets (multi-billion rows), a hash-based partitioning strategy may be preferable to reduce shuffle pressure.
 
-Storage Format
+## Storage Format
 
 Output format:
 
@@ -138,11 +138,11 @@ Output format:
 
 No local intermediate files are created.
 
-Data flow:
+## Data flow:
 
 BigQuery → Spark Executors → S3
 
-Logging and Observability
+## Logging and Observability
 
 The job includes:
 
@@ -152,14 +152,14 @@ The job includes:
 * Failure visibility
 * Explicit Spark job naming
 
-Recommended production integrations:
+## Recommended production integrations:
 
 * Cloud Monitoring
 * Datadog
 * Prometheus
 * Centralized log aggregation
 
-Scalability Characteristics
+## Scalability Characteristics
 
 Component	Behavior
 BigQuery Read	Distributed
@@ -171,7 +171,7 @@ Horizontal Scale	Supported
 The job does not depend on local disk capacity.
 Scaling depends on Spark cluster configuration.
 
-Deployment Options
+## Deployment Options
 
 This script can run on:
 
@@ -181,7 +181,7 @@ This script can run on:
 * Standalone Spark Cluster
 * Dataflow (if Spark runner is configured)
 
-Example Execution
+## Example Execution
 
 spark-submit \
   --packages com.google.cloud.spark:spark-bigquery-with-dependencies_2.12:0.32.2 \
@@ -192,7 +192,7 @@ spark-submit \
   --s3_bucket=my-bucket \
   --s3_prefix=exports/january
 
-Failure and Recovery Strategy
+## Failure and Recovery Strategy
 
 If the job fails:
 
@@ -207,7 +207,7 @@ Example:
 
 This ensures controlled and deterministic reprocessing.
 
-Design Principles
+## Design Principles
 
 * Deterministic query building
 * Explicit execution modes
@@ -217,7 +217,7 @@ Design Principles
 * Production observability
 * Separation of configuration and logic
 
-Future Improvements
+## Future Improvements
 
 For enterprise-scale evolution:
 
